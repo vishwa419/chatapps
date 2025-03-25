@@ -58,14 +58,34 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 
 func read(c *Client) {
 	defer func() {
+		c.hub.unregister <- c
 		c.sock.Close()
 	}()
+
+	c.sock.SetReadLimit(maxMessageSize)
+	c.sock.SetReadDeadline(time.Now().Add(pongWait))
+	c.sock.SetPongHandler(func(string) error {
+		c.sock.SetReadDeadline(time.Now().Add(pongWait))
+		return nil
+	})
+
 	for {
-		_, msg, _ := c.sock.ReadMessage()
+		_, msg, err := c.sock.ReadMessage()
+		if err != nil {
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				log.Printf("error: %v", err)
+			}
+			break
+		}
+
 		m := &Message{}
 		reader := bytes.NewReader(msg)
 		decoder := json.NewDecoder(reader)
-		_ = decoder.Decode(m)
+		err = decoder.Decode(m)
+		if err != nil {
+			log.Println(err)
+			return
+		}
 		//log.Println()
 		c.hub.broadcast <- &Message{ClientID: c.id, Text: m.Text}
 
@@ -82,7 +102,13 @@ func texter(c *Client) {
 	// read the msgs which are there in send channel of the client put by hub, which reads data from socket
 	for {
 		select {
-		case msg, _ := <-c.send:
+		case msg, ok := <-c.send:
+			c.sock.SetWriteDeadline(time.Now().Add(writeWait))
+			if !ok {
+				// The hub closed the channel.
+				c.sock.WriteMessage(websocket.CloseMessage, []byte{})
+				return
+			}
 			w, err := c.sock.NextWriter(websocket.TextMessage)
 			if err != nil {
 				return
