@@ -22,7 +22,7 @@ jobs:
         go-version: '1.24'
 
     - name: Build
-      run: go build -v main.go hub.go client.go
+      run: go build -v go_app/main.go go_app/hub.go go_app/client.go
 
     - name: Test
-      run: go test -v main.go hub.go client.go
+      run: go test -v go_app/main.go go_app/hub.go go_app/client.go
