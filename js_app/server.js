@@ -11,6 +11,7 @@ const io = new Server(es,{
 
 io.on(
 	'connection', socket=>{
+		console.log(socket.handshake)
 		console.log(socket.id, " has joined")
 		socket.on("msgCtoS", data=>{
 			io.emit('msgStoAllC', data)
