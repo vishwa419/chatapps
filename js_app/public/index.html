@@ -8,7 +8,20 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container text-center">
+    <div class="container">
+        <div class="row mb-3 mt-3 justify-content-md-center">
+            <div id="user-name"></div>
+            <button id="call" class="btn btn-primary col-1">Call!</button>
+            <button id="hangup" class="col-1" class="btn btn-primary">Hangup</button>
+            <div id="answer" class="col"></div>
+        </div>
+        <div id="videos">
+            <div id="video-wrapper">
+                <div id="waiting" class="btn btn-warning">Waiting for answer...</div>
+                <video class="video-player" id="local-video" autoplay playsinline controls></video>
+            </div>
+            <video class="video-player" id="remote-video" autoplay playsinline controls></video>
+        </div>
         <form class="row" id="messages-form">
             <div class="col-6">
                 <input id="user-message" type="text" placeholder="Enter message here" />
@@ -23,7 +36,25 @@
             </ul>
         </div>        
     </div>
+    <!---
+    <div class="container text-center">
+        <form class="row" id="messages-form">
+            <div class="col-6">
+                <input id="user-message" type="text" placeholder="Enter message here" />
+            </div>
+            <div class="col-2">
+                <input class="btn btn-primary" type="submit" value="Send Message!" />
+            </div>
+        </form>
+        <div class="col-12">
+            <ul id="messages">
+                <!-- Starts empty, populated by Socket.io and JavaScript --\>
+            </ul>
+        </div>        
+    </div>
+        --->
     <script src="/socket.io/socket.io.min.js"></script>
     <script src="scripts.js"></script>    
+    <script src='socketListeners.js'></script>
 </body>
 </html>
