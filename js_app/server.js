@@ -135,5 +135,9 @@ io.on('connection',(socket)=>{
         }
         // console.log(offers)
     })
+    socket.on("msgCtoS", data=>{
+			io.emit('msgStoAllC', data)
+			}
+		)
 
 })
